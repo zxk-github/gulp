@@ -1,0 +1,97 @@
+在工作流程中，我们应该尽量减少重复的工作，借助gulp/grunt这种构建工具很多任务我们都可以自动的执行
+在开发服务器中，可以使用gulp监听文件的变化，当文件变化的时候，执行事先已经设计好的任务
+
+创建gulpfile.js，在文件中创建需要执行的任务
+var gulp = require('gulp');
+
+1. 使用gulp.task创建任务
+gulp.task('taskName', function() {
+
+})
+gulp.task()  
+第一个参数，任务的名字
+第二个参数， 这个任务需要做的事情
+
+gulp taskName 执行这个任务
+
+2. 添加项目需要执行的默认任务
+gulp.task('default', ['hello'] )
+第一个参数，name是default表示需要执行的默认任务
+第二个参数，数组，默认需要执行的任务的列表
+
+3.gulp读取需要处理的文件，把处理好的文件放到指定的地方
+gulp的src()方法可以帮助我们读取到想要处理的文件
+通过.pipe()处理这些找到的文件，pipe可以理解成管道，每一个管道都可以使用指定对应的功能gulp插件来处理这个文件
+最后使用gulp.dest('/dist')来将处理好的文件放到指定的地方
+gulp.task('copy-html', function() {
+    return gulp.src('./index.html').pipe(gulp.dest('./dist'));
+})
+
+4.
+gulp.task('images', function() {
+    return gulp.src('./images/*.jpg').pipe(gulp.dest('./dist/images'));
+})
+
+gulp.task('images2', function() {
+    return gulp.src('./images/*.{png,jpg}').pipe(gulp.dest('./dist/images'))
+})
+
+gulp.task('images3', function() {
+    return gulp.src('./images/*').pipe(gulp.dest('./dist/images'))
+})
+
+gulp.src('./images/*/')
+gulp.src('./images/*/*') 
+gulp.src('./images/**/*')  // 目录中的所有子目录的所有文件
+
+gulp.task('data', function (){
+    return gulp.src(['xml/*.xml', 'json/*.json']).pipe(gulp.dest('./dist/images'));
+})
+
+// 在文件中有一些 你不想放在一起 在文件名称之前加上！这时候可以使用排除
+gulp.task('data2', function() {
+    return gulp.src(['xml/*.xml', 'json/*.json', '!json/secret-*.json']).pipe(gulp.dest('./dist/images'))
+})
+
+5.在给gulp创建任务的时候，我们可以给gulp的一个任务指定一个其他的任务
+gulp.task('build', ['copy-html', 'data'], function() {
+    console.log('执行这个任务做的事情');
+})
+先同时执行依赖的任务，并不是一个执行完成之后，执行下一个，然后再执行本身的任务
+
+6. gulp.watch()可以用来监视一些任务，当文件发生变化的时候，就会立即执行一些指定的任务
+gulp.task('watch', function() {
+    gulp.watch('./index.html', ['copy-html']);
+    gulp.watch('images/**/*', ['images'])
+    gulp.watch(['xml/*.xml', 'json/*.json', '!json/secret-*.json'], ['data'])
+})
+当执行watch任务的时候，就会监听index.html的变化，当文件变化的时候，就会执行copy-html这个任务
+
+7.gulp本身不会做提多的事情，除了读取文件，监听文件变化，把文件放到指定的位置，可以使用插件来扩展gulp的功能，使用插件可以执行一些特定的功能，比如说编译sass，less文件，文件压缩，重命名等等
+
+npm install gulp-sass --save-dev
+
+const sass = require('gulp-sass');
+gulp.task('scss', function() {
+    return gulp.src('./stylesheets/*')
+    .pipe(sass())
+    .pipe(gulp.dest('./dist/css'))
+})
+
+8 创建本地服务器 gulp-connect
+
+9 合并文件 gulp-concat
+
+10 压缩文件 gulp-uglify
+
+11 重命名文件 gulp-rename
+
+12 压缩css gulp-minify-css
+pipe(minifycss())
+
+13 优化图片文件尺寸 gulp-imagemin
+pipe(imagemin({
+    /*配置项*/
+}))
+
+
